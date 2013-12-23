@@ -35,7 +35,7 @@ setup(
     platforms='any',
     install_requires=[
         'Flask>=0.9',
-        'Flask-Login>=0.2.3',
+        'Flask-Login<=0.2.7',
         'Flask-Mail>=0.7.3',
         'Flask-Principal>=0.3.3',
         'Flask-WTF>=0.8',
