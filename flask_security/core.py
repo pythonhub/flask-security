@@ -8,6 +8,7 @@
     :copyright: (c) 2012 by Matt Wright.
     :license: MIT, see LICENSE for more details.
 """
+import sys
 
 from flask import current_app, render_template
 from flask.ext.login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
@@ -24,6 +25,9 @@ from .views import create_blueprint
 from .forms import LoginForm, ConfirmRegisterForm, RegisterForm, \
     ForgotPasswordForm, ChangePasswordForm, ResetPasswordForm, \
     SendConfirmationForm, PasswordlessLoginForm
+
+if sys.version_info.major == 3:
+    basestring = str
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
