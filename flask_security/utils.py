@@ -14,6 +14,7 @@ import blinker
 import functools
 import hashlib
 import hmac
+import sys
 
 from contextlib import contextmanager
 from datetime import datetime, timedelta
@@ -36,6 +37,14 @@ _security = LocalProxy(lambda: current_app.extensions['security'])
 _datastore = LocalProxy(lambda: _security.datastore)
 
 _pwd_context = LocalProxy(lambda: _security.pwd_context)
+
+PY3 = sys.version_info[0] == 3
+if PY3:  # pragma: no cover
+    string_types = str,  # pragma: no flakes
+    text_type = str  # pragma: no flakes
+else:  # pragma: no cover
+    string_types = basestring,  # pragma: no flakes
+    text_type = unicode  # pragma: no flakes
 
 
 def login_user(user, remember=None):
@@ -73,6 +82,14 @@ def logout_user():
     _logout_user()
 
 
+def encode_string(string):
+    """Encodes a string to bytes, if it isn't already.
+        :param string: The string to encode"""
+    if isinstance(string, text_type):
+        string = string.encode('utf-8')
+    return string
+
+
 def get_hmac(password):
     if _security.password_hash == 'plaintext':
         return password
@@ -83,7 +100,9 @@ def get_hmac(password):
             'not be None when the value of `SECURITY_PASSWORD_HASH` is '
             'set to "%s"' % _security.password_hash)
 
-    h = hmac.new(_security.password_salt, password.encode('utf-8'), hashlib.sha512)
+    h = hmac.new(
+        encode_string(_security.password_salt),
+        encode_string(password), hashlib.sha512)
     return base64.b64encode(h.digest())
 
 
@@ -92,7 +111,8 @@ def verify_password(password, password_hash):
 
 
 def verify_and_update_password(password, user):
-    verified, new_password = _pwd_context.verify_and_update(get_hmac(password), user.password)
+    verified, new_password = _pwd_context.verify_and_update(
+        get_hmac(password), user.password)
     if verified and new_password:
         user.password = new_password
         _datastore.put(user)
@@ -104,7 +124,7 @@ def encrypt_password(password):
 
 
 def md5(data):
-    return hashlib.md5(data).hexdigest()
+    return hashlib.md5(encode_string(data)).hexdigest()
 
 
 def do_flash(message, category=None):
@@ -364,19 +384,19 @@ class CaptureSignals(object):
         self._records[signal].append((args, kwargs))
 
     def __enter__(self):
-        for signal, receiver in self._receivers.iteritems():
+        for signal, receiver in self._receivers.items():
             signal.connect(receiver)
         return self
 
     def __exit__(self, type, value, traceback):
-        for signal, receiver in self._receivers.iteritems():
+        for signal, receiver in self._receivers.items():
             signal.disconnect(receiver)
 
     def signals_sent(self):
         """Return a set of the signals sent.
         :rtype: list of blinker `NamedSignals`.
         """
-        return set([signal for signal, _ in self._records.iteritems() if self._records[signal]])
+        return set([signal for signal, _ in self._records.items() if self._records[signal]])
 
 
 def capture_signals():
