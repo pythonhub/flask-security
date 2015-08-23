@@ -43,13 +43,13 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='Flask-Security',
+    name='quokka-flask-security',
     version='1.7.4',
-    url='https://github.com/mattupstate/flask-security',
+    url='https://github.com/quokkaproject/flask-security',
     license='MIT',
     author='Matt Wright',
     author_email='matt@nobien.net',
-    description='Simple security for Flask apps',
+    description='Fork of Simple security for Flask apps',
     long_description=get_long_description(),
     packages=find_packages(),
     zip_safe=False,
