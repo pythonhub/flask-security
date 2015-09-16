@@ -44,7 +44,7 @@ class PyTest(TestCommand):
 
 setup(
     name='quokka-flask-security',
-    version='1.7.4',
+    version='1.7.4-q1',
     url='https://github.com/quokkaproject/flask-security',
     license='MIT',
     author='Matt Wright',
